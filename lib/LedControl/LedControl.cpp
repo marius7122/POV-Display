@@ -76,17 +76,17 @@ void turnOff()
   PORTB &= B11100000;
 }
 
-void display(bool values[ledNo])
+void display(int values)
 {
-  SET_BIT_STATE(PORTD, 4, values[0]);
-  SET_BIT_STATE(PORTD, 5, values[1]);
-  SET_BIT_STATE(PORTD, 6, values[2]);
-  SET_BIT_STATE(PORTD, 7, values[3]);
-  SET_BIT_STATE(PORTB, 1, values[4]);
-  SET_BIT_STATE(PORTB, 0, values[5]);
-  SET_BIT_STATE(PORTB, 2, values[6]);
-  SET_BIT_STATE(PORTB, 3, values[7]);
-  SET_BIT_STATE(PORTB, 4, values[8]);
+  SET_BIT_STATE(PORTD, 4, (values >> 8 & 0x01));
+  SET_BIT_STATE(PORTD, 5, (values >> 7 & 0x01));
+  SET_BIT_STATE(PORTD, 6, (values >> 6 & 0x01));
+  SET_BIT_STATE(PORTD, 7, (values >> 5 & 0x01));
+  SET_BIT_STATE(PORTB, 1, (values >> 4 & 0x01));
+  SET_BIT_STATE(PORTB, 0, (values >> 3 & 0x01));
+  SET_BIT_STATE(PORTB, 2, (values >> 2 & 0x01));
+  SET_BIT_STATE(PORTB, 3, (values >> 1 & 0x01));
+  SET_BIT_STATE(PORTB, 4, (values >> 0 & 0x01));
 }
 
 void demoLed()
