@@ -19,9 +19,9 @@ volatile unsigned long currTime = 0;
 int currAngle = 0;
 int lastAngle = -1;
 int startAngle = 0;
-int wordDuration = 0;
-int currWord = 0;
-int wordNumber = 0;
+// int wordDuration = 0;
+// int currWord = 0;
+// int wordNumber = 0;
 
 int img[ANGLES_PER_ROTATION];
 // String wordList[MAX_WORDS];
@@ -47,21 +47,16 @@ void clearImg()
     img[i] = 0;
 }
 
-void copyToImg(int from, bool fig[][ledNo], int len)
+void copyToImg(int from, int fig[], int len)
 {
-  int i, j;
+  int i;
 
   for(i = from; i < from + len; i++)
   {
     if(i >= ANGLES_PER_ROTATION)
-    {
       return;
-    }
 
-    img[i] = 0;
-    for(j = 0; j < ledNo; j++)
-      if(fig[i - from][j])
-        img[i] |= 1 << j;
+    img[i] = fig[i-from];
   }
 }
 
@@ -75,8 +70,8 @@ void loadText(String text)
     c = text[i];
 
 
-    // letter
-    if(isAlpha(c))
+    // letter or punctuation
+    if(isAlpha(c) || c == '!')
     {
       c = toUpperCase(c);
       cLen = models::letterLen(c);
@@ -109,6 +104,7 @@ void loadText(String text)
         case 'X': copyToImg(imgLen, models::X, cLen); break;
         case 'Y': copyToImg(imgLen, models::Y, cLen); break;
         case 'Z': copyToImg(imgLen, models::Z, cLen); break;
+        case '!': copyToImg(imgLen, models::Exclamation_Mark, cLen); break;
       }
 
       imgLen += cLen;
@@ -129,6 +125,12 @@ void loadText(String text)
       {
         sLen = 10;
         copyToImg(imgLen, models::Heart, sLen);
+      }
+
+      if(s == "smiley")
+      {
+        sLen = 8;
+        copyToImg(imgLen, models::Smiley, sLen);
       }
 
       imgLen += sLen;
@@ -152,7 +154,7 @@ void loadText(String text)
 
 void processCommand(String s)
 {
-  wordDuration = 0;
+  // wordDuration = 0;
   // s.toUpperCase();
 
   Serial.println("S = ");
@@ -199,7 +201,7 @@ void setup()
 
 
   Serial.println("Start processing");
-  processCommand("\\blink2 marius este tare");
+  processCommand("hello");
 
 
   demoLed();

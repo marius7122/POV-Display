@@ -8,7 +8,7 @@ const int ledPin[] = {4, 5, 6, 7, 9, 8, 10, 11, 12};
 const int ledNo = 9;
 
 void ledInit();                 // initialize
-void display(int values);    // turn leds on and off acording to mask bits
+void display(int values);       // turn leds on and off acording to mask bits
 void turnOn();                  // turn on all leds
 void turnOff();                 // turn off all leds
 void demoLed();                 // demo display
