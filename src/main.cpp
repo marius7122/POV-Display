@@ -160,6 +160,7 @@ void processCommand(String s)
   Serial.println("S = ");
   Serial.println(s);
 
+  /* BLINK MODE IN PROGRESS */
   // blink mode (change words every x seconds, x is specified after \blink)
   /*if(s.startsWith("\\blink"))
   {
@@ -186,9 +187,8 @@ void processCommand(String s)
     }
   }*/
 
-  // normal mode (just display text)
-  // else
-    loadText(s);
+
+  loadText(s);
 }
 
 /*--------------ARDUINO FUNCTIONS----------------*/
@@ -199,10 +199,7 @@ void setup()
   ledInit();
   attachInterrupt(digitalPinToInterrupt(HALL_SENSOR_PIN), rotationComplete, FALLING);
 
-
-  Serial.println("Start processing");
   processCommand("hello");
-
 
   demoLed();
 }
@@ -223,6 +220,7 @@ void loop()
     lastAngle = currAngle;
   }
 
+  // bluetooth command received 
   if(Serial.available() > 0)
   {
     String command = Serial.readString();
