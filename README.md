@@ -9,7 +9,9 @@ Currently we can display text and some special simbols.
 <img src="images/front_view.jpg">
 
 ## How it is used
-We can connect to project bluetooth module using an app like "Serial Bluetooth Terminal" (the one I used). From here we can write what text we want to display. To display a special symbol wrap it in '/'. Example: "I /heart/ robotics". Currently special symbols are 'heart' and 'smiley'.
+We can connect to project bluetooth module using an app like "Serial Bluetooth Terminal" (the one I used). From here we can write what text we want to display.<br>
+To display one word at a time you can specify this at beginnig of command like this: "\blink<time_per_word_in_millis>" and then the words separated by space. Example: "\blink1000 hello world".<br>
+To display a special symbol wrap it in '/'. Example: "I /heart/ robotics". Currently special symbols are 'heart' and 'smiley'.
 
 ## Code Map
 * src/main.cpp: code for bluetooth comunication and high level led control
