@@ -15,7 +15,8 @@ namespace models
         if(l == '!')
             return 3;
 
-        return 0;
+				// empty space
+        return 3;
     }
 
 

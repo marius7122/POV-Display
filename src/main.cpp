@@ -8,7 +8,14 @@
 #define MEASURE_STUN 10000
 #define LETTER_SPACING 2
 #define SPACE_LENGTH 4
-#define MAX_WORDS 2
+#define MAX_WORDS 10
+#define BLINK_DELAY 100
+
+enum OperatingMode
+{
+  normal,
+  blink
+};
 
 /*--------------GLOBAL VARIABLES-----------------*/
 volatile unsigned long timePerAngle = 1000000;
@@ -19,12 +26,14 @@ volatile unsigned long currTime = 0;
 int currAngle = 0;
 int lastAngle = -1;
 int startAngle = 0;
-// int wordDuration = 0;
-// int currWord = 0;
-// int wordNumber = 0;
+unsigned long wordDuration = 0;
+unsigned currWord = 0;
+unsigned wordNumber = 0;
+unsigned long wordChangeTime = 0;
 
 int img[ANGLES_PER_ROTATION];
-// String wordList[MAX_WORDS];
+String wordList[MAX_WORDS];
+OperatingMode operatingMode;
 
 /*---------------CUSTOM FUNCTIONS----------------*/
 void rotationComplete()
@@ -60,7 +69,7 @@ void copyToImg(int from, int fig[], int len)
   }
 }
 
-void loadText(String text)
+void loadText(const String &text)
 {
   clearImg();
 
@@ -154,52 +163,67 @@ void loadText(String text)
 
 void processCommand(String s)
 {
-  // wordDuration = 0;
-  // s.toUpperCase();
+  wordDuration = 0;
+  s.toUpperCase();
 
-  Serial.println("S = ");
+  Serial.print("Command = ");
   Serial.println(s);
 
-  /* BLINK MODE IN PROGRESS */
-  // blink mode (change words every x seconds, x is specified after \blink)
-  /*if(s.startsWith("\\blink"))
+  // blink mode (change words every x milliseconds, x is specified after \blink)
+  if(s.startsWith("\\BLINK"))
   {
-    Serial.println("/blink/");
-    wordDuration = s[6] - '0';
+    operatingMode = blink;
     currWord = 0;
 
+    // parse word duration
+    wordDuration = 0;
+    int i = 6;
+    while(s[i] != ' ')
+      wordDuration = wordDuration * 10 + s[i++] - '0';
+    i++;
+
     // split words
-    int i;
     int wordIndex = 0;
     String aux = "";
-    for(i = 8; i < s.length(); i++)
+    for(; i < s.length(); i++)
     {
       if(s[i] >= 'A' && s[i] <= 'Z')
         aux += s[i];
       else
       {
         wordList[wordIndex++] = aux;
-        Serial.println(aux);
         aux = "";
+
         if(wordIndex == MAX_WORDS)
           break;
       }
     }
-  }*/
+    if(aux != "")
+      wordList[wordIndex++] = aux;
+    wordNumber = wordIndex;
 
+    // load first word
+    loadText(wordList[0]);
+    wordChangeTime = micros() + wordDuration * 1000;
+  }
 
-  loadText(s);
+  else
+  {
+    loadText(s);
+    operatingMode = normal;
+  }
 }
 
 /*--------------ARDUINO FUNCTIONS----------------*/
 void setup() 
 {
+  delay(1000);
   Serial.begin(9600);
 
   ledInit();
   attachInterrupt(digitalPinToInterrupt(HALL_SENSOR_PIN), rotationComplete, FALLING);
 
-  processCommand("hello");
+  processCommand("\\blink700 hello world");
 
   demoLed();
 }
@@ -212,6 +236,7 @@ void loop()
   currAngle += startAngle;
   currAngle %= ANGLES_PER_ROTATION;
   currAngle = ANGLES_PER_ROTATION - 1 - currAngle;
+
 
   // led state must be updated
   if(currAngle != lastAngle)
@@ -226,5 +251,18 @@ void loop()
     String command = Serial.readString();
 
     processCommand(command);
+  }
+
+  if(operatingMode == blink)
+  {
+    // check if word must be changed
+    if(currTime >= wordChangeTime)
+    {
+      turnOff();
+      currWord = (currWord + 1) % wordNumber;
+      loadText(wordList[currWord]);
+      delay(BLINK_DELAY);
+      wordChangeTime = micros() + wordDuration * 1000;
+    }
   }
 }
